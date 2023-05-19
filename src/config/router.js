@@ -1,11 +1,28 @@
 import { createRouter, createWebHistory } from "vue-router"
+import { IndexPage, GalleryPage } from '../pages/index'
+import useAuth from '../composables/auth'
 
-import HomePage from '../pages/index.vue'
-import GalleryPage from '../pages/gallery.vue'
+const { onAuth, userId } = useAuth()
 
 const routes = [
-  { path: '/', name: 'home', component: HomePage },
-  { path: '/gallery', name: 'gallery', component: GalleryPage },
+  { 
+    path: '/',
+    name: 'index',
+    component: IndexPage,
+    beforeEnter: (async (to, from) => {
+      await onAuth()
+      if (userId) return '/gallery'
+    })
+  },
+  { 
+    path: '/gallery',
+    name: 'gallery',
+    component: GalleryPage,
+    beforeEnter: (async (to, from) => {
+      await onAuth()
+      if (!userId) return '/'
+    })
+  },
 ]
 
 const router = createRouter({

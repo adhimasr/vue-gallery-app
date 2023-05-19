@@ -1,10 +1,21 @@
 import { ref } from "vue"
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth"
+import { 
+    onAuthStateChanged, 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword 
+} from "firebase/auth"
 import { auth } from "../config/firebase"
 
 const useAuth = () => {
+    const userId = ref(null)
     const isFailed = ref(null)
     const isReqAuth = ref(false)
+
+    const onAuth = async () => {
+        await onAuthStateChanged(auth, (user) => {
+            userId.value = user?.uid
+        });
+    }
 
     const signin = async ({ email, password }) => {
         try {
@@ -30,7 +41,7 @@ const useAuth = () => {
         }
     }
 
-    return { signin, signup, isReqAuth, isFailed }
+    return { onAuth, userId, signin, signup, isReqAuth, isFailed }
 }
 
 export default useAuth
